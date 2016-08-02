@@ -4,11 +4,19 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.5'
 
 gem 'rails-api'
+gem "faraday"
+gem "figaro"
 
-gem 'spring', :group => :development
 
 
-gem 'sqlite3'
+
+
+group :development, :test do
+  gem "pry"
+  gem 'sqlite3'
+  gem 'spring'
+  gem "rspec-rails"
+end
 
 
 
