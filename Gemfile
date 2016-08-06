@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
-
 gem 'rails', '4.2.5'
-
 gem 'rails-api'
 gem "faraday"
 gem "figaro"
+gem "rack-cors", require: "rack/cors"
+
 
 
 
