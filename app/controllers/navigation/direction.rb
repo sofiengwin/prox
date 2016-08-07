@@ -20,7 +20,7 @@ module Navigation
 
     def get_directions
       @classname ||= self.class.instance_variable_get('@classname')
-      "#{instruction}\n#{get_nested_segement}\n#{get_next_segement}"
+      ActionView::Base.full_sanitizer.sanitize("#{instruction}\n#{get_nested_segement}\n#{get_next_segement}")
     end
 
     def get_nested_segement
