@@ -5,14 +5,10 @@ gem 'rails-api'
 gem "faraday"
 gem "figaro"
 gem "rack-cors", require: "rack/cors"
-
-
-
-
-
+gem "google_maps_service"
 
 group :development, :test do
-  gem "pry"
+  gem "pry-rails"
   gem 'sqlite3'
   gem 'spring'
   gem "rspec-rails"
