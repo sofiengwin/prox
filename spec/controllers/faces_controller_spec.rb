@@ -24,7 +24,6 @@ RSpec.describe FacesController, type: :request do
         },
         format: :json
       )
-
       expect(json(response.body)[:image_link]).to eq image_link
     end
   end
@@ -39,7 +38,7 @@ RSpec.describe FacesController, type: :request do
           },
         format: :json
         )
-      expect(json(response.body).keys).to include "error"
+      expect(json(response.body).keys).to include :error
     end
   end
 end

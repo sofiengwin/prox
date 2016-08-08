@@ -23,7 +23,6 @@ RSpec.describe PersonsController, type: :request do
         { name: "goodluck", userData: "From bayelsa state" },
         format: :json
       )
-
       expect(json(response.body)[:name]).to eq "goodluck"
     end
   end
@@ -31,7 +30,7 @@ RSpec.describe PersonsController, type: :request do
   describe "GET list_persons" do
     it "returns a list of people in a person group" do
       get("/person-groups/theprox/persons", format: :json)
-      expect(json(response.body)[0][:name]).to eq "Person1"
+      expect(json(response.body)[0][:name]).to eq "goodluck jonathan"
     end
   end
 

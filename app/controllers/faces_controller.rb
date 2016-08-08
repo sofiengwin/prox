@@ -19,7 +19,7 @@ class FacesController < ApplicationController
               "faceIds": [face_id],
               "maxNumOfCandidatesReturned": 1,
               "confidenceThreshold": 0.75
-           }
+           }.to_json
     verified_resp = verify(json(make_api_call("identify", :post, body)))
     render json: ResponseHandler.new(verified_resp).call
   end
@@ -27,11 +27,14 @@ class FacesController < ApplicationController
   private
 
   def verify(face_params)
-    body = {  "faceId": face_params[0]["faceId"],
-              "personId": face_params[0]["candidates"][0]["personId"],
-              "personGroupId": "theprox"
-           }
-    json(make_api_call("verify", :post, body))
+    unless face_params[:error]
+      body = {  "faceId": face_params[0]["faceId"],
+                "personId": face_params[0]["candidates"][0]["personId"],
+                "personGroupId": "theprox"
+             }
+      json(make_api_call("verify", :post, body))
+    end
+    face_params if face_params[:error]
   end
 
   def add_new_face
