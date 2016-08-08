@@ -1,5 +1,5 @@
 module ApiConnection
-  def make_api_call(uri_extension, http_method, body = '{}')
+  def make_api_call(uri_extension, http_method, body = {})
     url = ENV["face_api"] + uri_extension
     conn = Faraday.new(url: url).send(http_method) do |req|
       req.headers["Content-Type"] = "application/json"
