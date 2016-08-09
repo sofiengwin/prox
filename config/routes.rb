@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
   # Faces
   post "person-groups/:group/persons/:person_id/faces", to: "faces#add_face"
-  post "person-groups/:group/persons/:person_id/detect_face", to: "faces#detect_face"
+  post "person-groups/:group/detect-face", to: "faces#detect_face"
   get "person-groups/:group/persons/:person_id/faces", to: "faces#get_faces"
+  post "person-groups/:group/identify", to: "faces#detect"
 end

@@ -24,17 +24,45 @@ class FacesController < ApplicationController
     render json: ResponseHandler.new(verified_resp).call
   end
 
+  def get_faces
+    person = Person.find_by(personid: params[:person_id])
+    faces = person.faces
+    render json: faces
+  end
+
+  def detect
+    body = {
+      url: params[:image_link]
+    }.to_json
+    response = json(make_api_call("detect", :post, body))
+    face_id = response[0][:faceId]
+    result = verify(identify(face_id))
+    render json: result
+  end
+
   private
 
+  def identify(face_id)
+    body = {
+      personGroupId: "theprox",
+      faceIds: [face_id],
+      maxNumOfCandidatesReturned: 1,
+      confidenceThreshold: 0.75
+    }.to_json
+
+    response = json(make_api_call("identify", :post, body))
+  end
+
   def verify(face_params)
-    unless face_params[:error]
-      body = {  "faceId": face_params[0]["faceId"],
-                "personId": face_params[0]["candidates"][0]["personId"],
+    if face_params.is_a? Array
+      body = {  "faceId": face_params[0][:faceId],
+                "personId": face_params[0][:candidates][0][:personId],
                 "personGroupId": "theprox"
-             }
+             }.to_json
       json(make_api_call("verify", :post, body))
+    else
+      face_params
     end
-    face_params if face_params[:error]
   end
 
   def add_new_face
@@ -44,7 +72,7 @@ class FacesController < ApplicationController
     }.to_json
     @response = json(make_api_call(uri, :post, body))
     @fields = { image_link: params[:image_link],
-                persisted_face_id: response[:persistedFaceId]
+                persisted_face_id: @response[:persistedFaceId]
              }
   end
 
