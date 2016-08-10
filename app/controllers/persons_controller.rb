@@ -55,8 +55,7 @@ class PersonsController < ApplicationController
 
 # list of persons in our db
   def get_persons
-    persons = Person.all
-    render json: persons
+    @persons = Person.all
   end
 
   def get_person

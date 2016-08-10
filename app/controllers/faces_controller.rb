@@ -36,8 +36,7 @@ class FacesController < ApplicationController
     }.to_json
     response = json(make_api_call("detect", :post, body))
     face_id = response[0][:faceId]
-    result = verify(identify(face_id))
-    render json: result
+    @result = verify(identify(face_id))
   end
 
   private
@@ -59,6 +58,9 @@ class FacesController < ApplicationController
                 "personId": face_params[0][:candidates][0][:personId],
                 "personGroupId": "theprox"
              }.to_json
+      @person = Person.find_by(
+        personid: face_params[0][:candidates][0][:personId]
+      )
       json(make_api_call("verify", :post, body))
     else
       face_params
