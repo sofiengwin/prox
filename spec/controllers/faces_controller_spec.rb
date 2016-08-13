@@ -83,20 +83,28 @@ RSpec.describe FacesController, type: :request do
     #   end
     # end
 
-    context "when an invalid image link is submitted" do
-      it "returns 'invalid image link error' message" do
+    # context "when an invalid image link is submitted" do
+    #   it "returns 'invalid image link error' message" do
+    #     post(
+    #       "/person-groups/theprox/identify",
+    #       image_link: "http://bit.ly/2bfgbF",
+    #       format: :json
+    #     )
+    #
+    #     expect(json(response.body)[:error]).to eq "No person matched."
+    #   end
+    # end
+
+    context "when image contains more than one person" do
+      it "identifies all persons in the image" do
         post(
           "/person-groups/theprox/identify",
-          image_link: "http://bit.ly/2bfgbF",
+          image_link: "http://bit.ly/multiple_faces",
           format: :json
         )
 
         expect(json(response.body)).to eq "test"
       end
-    end
-
-    context "when image contains more than one person" do
-
     end
 
     context "when identifing more than one person" do
