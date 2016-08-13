@@ -9,6 +9,29 @@ module ApiConnection
     conn.body
   end
 
+  def call_object_detect_api(image_path)
+    url = ENV["object_api"]
+    key = ENV["object_api_subscription_key"]
+
+    result = api_connection_with_image(url, key, image_path)
+  end
+
+  def api_connection_with_image(url, key, image_path)
+    body = {url: Faraday::UploadIO.new(image_path, 'image/jpeg')}
+
+    conn = Faraday.new(url) do |faraday|
+      faraday.request :multipart
+      faraday.request :url_encoded
+      faraday.adapter :net_http
+    end
+
+    result = conn.post do |req|
+                req.headers["Ocp-Apim-Subscription-Key"] = key
+                req.body = body
+              end
+    json(result.body)
+  end
+
   def json(response)
     JSON.parse(response, symbolize_names: true)
   end

@@ -39,6 +39,13 @@ class FacesController < ApplicationController
     @result = verify(identified)
   end
 
+  def detect_object
+    image_path = "avatar.jpg"
+    result = call_object_detect_api(image_path)
+    text_descriptions = result[:description][:captions]
+    binding.pry
+  end
+
   private
 
   def detect_faces(body)
