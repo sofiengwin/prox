@@ -31,38 +31,48 @@ class FacesController < ApplicationController
   end
 
   def detect
+    @persons = []
     body = {
       url: params[:image_link]
     }.to_json
-    face_id = detect_faces(body)
-    identified = identified_person(face_id)
-    @result = verify(identified)
+    face_ids = detect_faces(body)
+    identified = identified_person(face_ids)
+    if identified.any? {|person| person.keys.include? :error }
+      render json: ResponseHandler.new(identified).call
+    end
+    verify_face(identified)
   end
 
   private
 
+  def verify_face(faces)
+    faces.each do |face|
+      @persons << verify(face) unless face[:candidates].empty?
+    end
+  end
+
   def detect_faces(body)
     response = json(make_api_call("detect", :post, body))
     if response.is_a?(Array)
-      response[0][:faceId]
+      response.map{ |response| response[:faceId] }
     else
       { error: "Invalid image link"}
     end
   end
 
-  def identified_person(face_id)
-    response = identify(face_id)
+  def identified_person(face_ids)
+    response = identify(face_ids)
     if response.is_a?(Array)
       response
     else
-      face_id
+      { error: "No person matched."}
     end
   end
 
-  def identify(face_id)
+  def identify(face_ids)
     body = {
       personGroupId: "theprox",
-      faceIds: [face_id],
+      faceIds: face_ids,
       maxNumOfCandidatesReturned: 1,
       confidenceThreshold: 0.75
     }.to_json
@@ -71,16 +81,16 @@ class FacesController < ApplicationController
   end
 
   def verify(face_params)
-    if face_params.is_a?(Array) && !face_params[0][:candidates].empty?
-      body = {  faceId: face_params[0][:faceId],
-                personId: face_params[0][:candidates][0][:personId],
+    if face_params[:candidates].is_a?(Array)
+      body = {  faceId: face_params[:faceId],
+                personId: face_params[:candidates][0][:personId],
                 personGroupId: "theprox"
              }.to_json
-      @person = Person.find_by(
-        personid: face_params[0][:candidates][0][:personId]
+      person = Person.find_by(
+        personid: face_params[:candidates][0][:personId]
       )
-      return { error: "Person not found" } unless @person
-      json(make_api_call("verify", :post, body))
+      result = json(make_api_call("verify", :post, body))
+      { person: person, result: result }
     else
       {error: "Person not found"}
     end
