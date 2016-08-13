@@ -55,16 +55,52 @@ RSpec.describe FacesController, type: :request do
   # end
 
   describe "POST face_identify" do
-    it "returns verification confidence ratio" do
-      post(
-        "/person-groups/theprox/identify",
-        {
-          image_link: "https://pbs.twimg.com/media/CpUTLYGXgAQonZq.jpg"
-        },
-        format: :json
-      )
+    # context "when there is a candidate" do
+    #   it "returns verification confidence ratio" do
+    #     post(
+    #     "/person-groups/theprox/identify",
+    #     {
+    #       image_link: "http://bit.ly/2bfgbFH",
+    #       format: :json
+    #     }
+    #     )
+    #
+    #     expect(json(response.body)).to eq "test"
+    #   end
+    # end
 
-      expect(json(response.body)).to eq "test"
+    # context "when there are no candidates" do
+    #   it "returns 'person not found' message" do
+    #     post(
+    #       "/person-groups/theprox/identify",
+    #       {
+    #         image_link: "https://pbs.twimg.com/media/CpjZVc3UEAE7DKO.jpg:large",
+    #         format: :json
+    #       }
+    #     )
+    #
+    #     expect(json(response.body)[:error]).to eq "Person not found"
+    #   end
+    # end
+
+    context "when an invalid image link is submitted" do
+      it "returns 'invalid image link error' message" do
+        post(
+          "/person-groups/theprox/identify",
+          image_link: "http://bit.ly/2bfgbF",
+          format: :json
+        )
+
+        expect(json(response.body)).to eq "test"
+      end
+    end
+
+    context "when image contains more than one person" do
+
+    end
+
+    context "when identifing more than one person" do
+
     end
   end
 end
