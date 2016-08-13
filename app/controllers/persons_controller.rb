@@ -46,10 +46,16 @@ class PersonsController < ApplicationController
     end
   end
 
+#list of persons in person group
   def list_persons
     uri = "persongroups/#{params[:group]}/persons"
     response = json(make_api_call(uri, :get))
     render json: response
+  end
+
+# list of persons in our db
+  def get_persons
+    @persons = Person.all
   end
 
   def get_person

@@ -24,17 +24,74 @@ class FacesController < ApplicationController
     render json: ResponseHandler.new(verified_resp).call
   end
 
+  def get_faces
+    person = Person.find_by(personid: params[:person_id])
+    faces = person.faces
+    render json: faces
+  end
+
+  def detect
+    body = {
+      url: params[:image_link]
+    }.to_json
+    face_id = detect_faces(body)
+    identified = identified_person(face_id)
+    @result = verify(identified)
+  end
+
   private
 
-  def verify(face_params)
-    unless face_params[:error]
-      body = {  "faceId": face_params[0]["faceId"],
-                "personId": face_params[0]["candidates"][0]["personId"],
-                "personGroupId": "theprox"
-             }
-      json(make_api_call("verify", :post, body))
+  def detect_faces(body)
+    response = json(make_api_call("detect", :post, body))
+    if response.is_a?(Array)
+      response[0][:faceId]
+    else
+      { error: "Invalid image link"}
     end
-    face_params if face_params[:error]
+  end
+
+  def identified_person(face_id)
+    response = identify(face_id)
+    if response.is_a?(Array)
+      response
+    else
+      face_id
+    end
+  end
+
+  def identify(face_id)
+    body = {
+      personGroupId: "theprox",
+      faceIds: [face_id],
+      maxNumOfCandidatesReturned: 1,
+      confidenceThreshold: 0.75
+    }.to_json
+
+    json(make_api_call("identify", :post, body))
+  end
+
+  def verify(face_params)
+    if face_params.is_a?(Array) && !face_params[0][:candidates].empty?
+      body = {  faceId: face_params[0][:faceId],
+                personId: face_params[0][:candidates][0][:personId],
+                personGroupId: "theprox"
+             }.to_json
+      @person = Person.find_by(
+        personid: face_params[0][:candidates][0][:personId]
+      )
+      return { error: "Person not found" } unless @person
+      json(make_api_call("verify", :post, body))
+    else
+      {error: "Person not found"}
+    end
+  end
+
+  def handle_error(error_message)
+    if error_message[:error]
+      error_message
+    else
+      { error: "alternative error message" }
+    end
   end
 
   def add_new_face
@@ -44,7 +101,7 @@ class FacesController < ApplicationController
     }.to_json
     @response = json(make_api_call(uri, :post, body))
     @fields = { image_link: params[:image_link],
-                persisted_face_id: response[:persistedFaceId]
+                persisted_face_id: @response[:persistedFaceId]
              }
   end
 
